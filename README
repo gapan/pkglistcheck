@@ -1,0 +1,14 @@
+pkglistcheck is a small command line tool that can be used to check
+Salix ISO package lists for problems.
+
+pkglistcheck should be run from inside the directory that has the
+package list files. A file named "CORE" should always be present in that
+directory.
+
+You should make sure that your /var/slapt-get/package_data file should
+be up to date by running:
+  slapt-get --update
+
+Note that results might be slightly different if run from a 32-bit or a
+64-bit installation.
+
