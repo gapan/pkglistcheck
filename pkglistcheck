@@ -82,8 +82,10 @@ f.close()
 
 
 missing_deps_check('CORE')
-missing_deps_check('BASIC')
-missing_deps_check('FULL')
+if os.path.exists('BASIC'):
+	missing_deps_check('BASIC')
+if os.path.exists('FULL'):
+	missing_deps_check('FULL')
 
 not_needed_check('ALL')
 
