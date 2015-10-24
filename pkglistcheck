@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # vim:et:sta:sts=4:sw=4:ts=8:tw=79:
 
+from __future__ import print_function
 import sys
 import os
 
 if not os.path.exists('CORE'):
-    print 'ERROR: You need to run this inside the directory with the package lists.'
+    print('ERROR: You need to run this inside the directory with the package lists.')
     sys.exit(1)
 
 
@@ -16,14 +17,14 @@ deps = []
 priorities = []
 
 def pkg_not_present_check(pkglist):
-    print '\nChecking lists for packages not in the repos (not necessarily a problem)...'
+    print('\nChecking lists for packages not in the repos (not necessarily a problem)...')
     for i in pkglist:
         if i is not '':
             if i not in pkg:
-                print i, 'is not in the repos'
+                print(i, 'is not in the repos')
 
 def missing_deps_check(filelist):
-    print '\nChecking', filelist, 'for missing dependencies...'
+    print('\nChecking', filelist, 'for missing dependencies...')
     f = file(filelist)
     while True:
         line = f.readline()
@@ -43,19 +44,19 @@ def missing_deps_check(filelist):
                             if altdep_name in isopkg:
                                 found = True
                         if not found:
-                            print dep, 'is a dependency of', pkg[index], 'but is not in the iso', filelist, 'list'
+                            print(dep, 'is a dependency of', pkg[index], 'but is not in the iso', filelist, 'list')
                     elif dep not in isopkg:
-                        print dep, 'is a dependency of', pkg[index], 'but is not in the iso', filelist, 'list'
+                        print(dep, 'is a dependency of', pkg[index], 'but is not in the iso', filelist, 'list')
 
 def not_needed_check(filelist):
-    print '\nChecking', filelist, 'for packages that are not needed (not a problem in most cases)...'
+    print('\nChecking', filelist, 'for packages that are not needed (not a problem in most cases)...')
     for i in isopkg:
         found = False
         for dep in deps:
             if i in dep:
                 found = True
         if not found:
-            print i, 'is not required by any other packages in', filelist
+            print(i, 'is not required by any other packages in', filelist)
 
 f = file(package_data)
 while True:
