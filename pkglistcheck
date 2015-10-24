@@ -25,13 +25,12 @@ def pkg_not_present_check(pkglist):
 
 def missing_deps_check(filelist):
     print('\nChecking', filelist, 'for missing dependencies...')
-    f = open(filelist, 'r')
-    while True:
-        line = f.readline()
-        if len(line) == 0:
-            break
-        isopkg.append(line.replace('\n', '').strip())
-    f.close()
+    with open(filelist, 'r') as f:
+        while True:
+            line = f.readline()
+            if len(line) == 0:
+                break
+            isopkg.append(line.replace('\n', '').strip())
     for i in isopkg:
         if i in pkg:
             index = pkg.index(i)
@@ -58,36 +57,35 @@ def not_needed_check(filelist):
         if not found:
             print(i, 'is not required by any other packages in', filelist)
 
-f = open(package_data, 'r')
-while True:
-    try:
-        line = f.readline()
-    except UnicodeDecodeError:
-        # some packages (like aspell-fo) have badly encoded strings in them.
-        # This is in the package description, so there is no harm in just
-        # skipping those lines, as we're not actually using them
-        pass
-    else:
-        if len(line) == 0:
-            break
-        if line.startswith('PACKAGE NAME:'):
-            pkgname = line.replace('PACKAGE NAME:', '').strip(' ').rpartition('-')[0].rpartition('-')[0].rpartition('-')[0]
-        elif line.startswith('PACKAGE PRIORITY:'):
-            priority = int(line.replace('PACKAGE PRIORITY:', '').strip(' '))
-        elif line.startswith('PACKAGE REQUIRED:'):
-            dep = line.replace('PACKAGE REQUIRED:', '').replace('\n', '').strip().replace(' ', ',').split(',')
-        elif line.startswith('PACKAGE DESCRIPTION:'):
-            if pkgname in pkg:
-                index = pkg.index(pkgname)
-                if priority > priorities[index]:
-                    pkg[index] = pkgname
-                    priorities[index] = priority
-                    deps[index] = dep
-            else:
-                pkg.append(pkgname)
-                priorities.append(priority)
-                deps.append(dep)
-f.close()
+with open(package_data, 'r') as f:
+    while True:
+        try:
+            line = f.readline()
+        except UnicodeDecodeError:
+            # some packages (like aspell-fo) have badly encoded strings in them.
+            # This is in the package description, so there is no harm in just
+            # skipping those lines, as we're not actually using them
+            pass
+        else:
+            if len(line) == 0:
+                break
+            if line.startswith('PACKAGE NAME:'):
+                pkgname = line.replace('PACKAGE NAME:', '').strip(' ').rpartition('-')[0].rpartition('-')[0].rpartition('-')[0]
+            elif line.startswith('PACKAGE PRIORITY:'):
+                priority = int(line.replace('PACKAGE PRIORITY:', '').strip(' '))
+            elif line.startswith('PACKAGE REQUIRED:'):
+                dep = line.replace('PACKAGE REQUIRED:', '').replace('\n', '').strip().replace(' ', ',').split(',')
+            elif line.startswith('PACKAGE DESCRIPTION:'):
+                if pkgname in pkg:
+                    index = pkg.index(pkgname)
+                    if priority > priorities[index]:
+                        pkg[index] = pkgname
+                        priorities[index] = priority
+                        deps[index] = dep
+                else:
+                    pkg.append(pkgname)
+                    priorities.append(priority)
+                    deps.append(dep)
 
 
 missing_deps_check('CORE')
