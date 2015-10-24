@@ -25,7 +25,7 @@ def pkg_not_present_check(pkglist):
 
 def missing_deps_check(filelist):
     print('\nChecking', filelist, 'for missing dependencies...')
-    f = file(filelist)
+    f = open(filelist, 'r')
     while True:
         line = f.readline()
         if len(line) == 0:
@@ -58,7 +58,7 @@ def not_needed_check(filelist):
         if not found:
             print(i, 'is not required by any other packages in', filelist)
 
-f = file(package_data)
+f = open(package_data, 'r')
 while True:
     line = f.readline()
     if len(line) == 0:
