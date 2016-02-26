@@ -4,6 +4,7 @@
 from __future__ import print_function
 import sys
 import os
+import collections
 
 if not os.path.exists('CORE'):
     print('ERROR: You need to run this inside the directory with the package lists.')
@@ -85,6 +86,16 @@ def not_needed_check(pkglist):
             print(i, 'is not required by any other packages')
     print()
 
+def check_for_dupes_within(pkglist):
+    '''
+    Checks and prints duplicate entries within one PkgList
+    '''
+    print('Checking for duplicates items in', pkglist.name)
+    dupes = [item for item, count in collections.Counter(pkglist.pkglist).items() if count > 1]
+    for i in dupes:
+        print(i)
+    print()
+
 with open(package_data, 'r') as f:
     while True:
         try:
@@ -124,6 +135,12 @@ if os.path.exists('FULL'):
     full = PkgList('FULL')
 else:
     full = PkgList('FULL', present = False)
+
+check_for_dupes(core)
+if basic.present:
+    check_for_dupes(basic)
+if full.present:
+    check_for_dupes(full)
 
 missing_deps_check(core)
 if basic.present:
