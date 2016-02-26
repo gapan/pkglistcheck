@@ -96,6 +96,22 @@ def check_for_dupes_within(pkglist):
         print(i)
     print()
 
+def check_for_dupes_between(list1, list2):
+    '''
+    Checks for duplicate entries between two PkgLists
+    '''
+    print('Checking for duplicate items between', list1.name, 'and', list2.name)
+    common = []
+    for i in list1.pkglist:
+        if i in list2.pkglist and i not in common:
+            common.append(i)
+    for i in list2.pkglist:
+        if i in list1.pkglist and i not in common:
+            common.append(i)
+    for i in common:
+        print(i)
+    print()
+
 with open(package_data, 'r') as f:
     while True:
         try:
@@ -141,6 +157,12 @@ if basic.present:
     check_for_dupes_within(basic)
 if full.present:
     check_for_dupes_within(full)
+
+if basic.present:
+    check_for_dupes_between(core, basic)
+    if full.present:
+        check_for_dupes_between(core, full)
+        check_for_dupes_between(basic, full)
 
 missing_deps_check(core)
 if basic.present:
