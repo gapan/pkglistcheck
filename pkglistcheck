@@ -95,7 +95,7 @@ def check_for_dupes_within(pkglist):
     '''
     Checks and prints duplicate entries within one PkgList
     '''
-    print_title('Checking for duplicates items in {}'.format(pkglist.name))
+    print_title('Checking for duplicate items in {}'.format(pkglist.name))
     dupes = [item for item, count in collections.Counter(pkglist.pkglist).items() if count > 1]
     for i in dupes:
         print(i)
