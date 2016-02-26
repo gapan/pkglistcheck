@@ -11,51 +11,76 @@ if not os.path.exists('CORE'):
 
 
 package_data = '/var/slapt-get/package_data'
-isopkg = []
-pkg = []
-deps = []
-priorities = []
+repopkg = [] # a list of packages in the repos
+deps = [] # a list of dependencies. Indeces correspond to packages in repopkg
+priorities = [] # a list of package priorities. Indeces correspond to repopkg
+
+class PkgList:
+    def __init__(self, name, present = True):
+        self.name = name
+        self.present = present
+        if present:
+            self.pkglist = self._readlist(name)
+        else:
+            self.pkglist = []
+
+    def _readlist(self, filelist):
+        '''
+        Reads a package list in file "filelist". The list should be one package per
+        line.
+        '''
+        pkglist = []
+        with open(filelist, 'r') as f:
+            while True:
+                line = f.readline()
+                if len(line) == 0:
+                    break
+                pkglist.append(line.replace('\n', '').strip())
+        return pkglist
 
 def pkg_not_present_check(pkglist):
     print('\nChecking lists for packages not in the repos (not necessarily a problem)...')
     for i in pkglist:
         if i is not '':
-            if i not in pkg:
+            if i not in repopkg:
                 print(i, 'is not in the repos')
 
-def missing_deps_check(filelist):
-    print('\nChecking', filelist, 'for missing dependencies...')
-    with open(filelist, 'r') as f:
-        while True:
-            line = f.readline()
-            if len(line) == 0:
-                break
-            isopkg.append(line.replace('\n', '').strip())
-    for i in isopkg:
-        if i in pkg:
-            index = pkg.index(i)
+def missing_deps_check(pkglist, prev = []):
+    '''
+    pkglist is the PkgList object that is to be checked.
+    prev is a PkgList.pkglist that is also going to be checked against pkglist.
+    All packages in pkglist.pkglist should be either in pkglist.pkglist or in
+    prev.
+    '''
+    print('\nChecking', pkglist.name, 'for missing dependencies...')
+    allpkg = pkglist.pkglist + prev
+    for i in pkglist.pkglist:
+        if i in repopkg:
+            index = repopkg.index(i)
             for dep in deps[index]:
                 if dep is not '':
                     if '|' in dep:
                         found = False
                         for altdep in dep.split('|'):
                             altdep_name = altdep.strip()
-                            if altdep_name in isopkg:
+                            if altdep_name in allpkg:
                                 found = True
                         if not found:
-                            print(dep, 'is a dependency of', pkg[index], 'but is not in the iso', filelist, 'list')
-                    elif dep not in isopkg:
-                        print(dep, 'is a dependency of', pkg[index], 'but is not in the iso', filelist, 'list')
+                            print(dep, 'is a dependency of', repopkg[index],
+                                'but is not in the iso', pkglist.name, 'list')
+                    elif dep not in allpkg:
+                        print(dep, 'is a dependency of', repopkg[index],
+                                'but is not in the iso', pkglist.name, 'list')
 
-def not_needed_check(filelist):
-    print('\nChecking', filelist, 'for packages that are not needed (not a problem in most cases)...')
-    for i in isopkg:
+def not_needed_check(pkglist):
+    print('\nChecking for packages that are not needed (not a problem in most cases)...')
+    for i in pkglist:
         found = False
         for dep in deps:
             if i in dep:
                 found = True
         if not found:
-            print(i, 'is not required by any other packages in', filelist)
+            print(i, 'is not required by any other packages')
 
 with open(package_data, 'r') as f:
     while True:
@@ -76,24 +101,34 @@ with open(package_data, 'r') as f:
             elif line.startswith('PACKAGE REQUIRED:'):
                 dep = line.replace('PACKAGE REQUIRED:', '').replace('\n', '').strip().replace(' ', ',').split(',')
             elif line.startswith('PACKAGE DESCRIPTION:'):
-                if pkgname in pkg:
-                    index = pkg.index(pkgname)
+                if pkgname in repopkg:
+                    index = repopkg.index(pkgname)
                     if priority > priorities[index]:
-                        pkg[index] = pkgname
+                        repopkg[index] = pkgname
                         priorities[index] = priority
                         deps[index] = dep
                 else:
-                    pkg.append(pkgname)
+                    repopkg.append(pkgname)
                     priorities.append(priority)
                     deps.append(dep)
 
-
-missing_deps_check('CORE')
+core = PkgList('CORE')
 if os.path.exists('BASIC'):
-    missing_deps_check('BASIC')
+    basic = PkgList('BASIC')
+else:
+    basic = PkgList('BASIC', present = False)
 if os.path.exists('FULL'):
-    missing_deps_check('FULL')
+    full = PkgList('FULL')
+else:
+    full = PkgList('FULL', present = False)
 
-not_needed_check('ALL')
+missing_deps_check(core)
+if basic.present:
+    missing_deps_check(basic, prev = core.pkglist)
+if full.present:
+    missing_deps_check(full, prev = core.pkglist + basic.pkglist)
+
+isopkg = core.pkglist + basic.pkglist + full.pkglist
+not_needed_check(isopkg)
 
 pkg_not_present_check(isopkg)
