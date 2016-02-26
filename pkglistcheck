@@ -136,11 +136,11 @@ if os.path.exists('FULL'):
 else:
     full = PkgList('FULL', present = False)
 
-check_for_dupes(core)
+check_for_dupes_within(core)
 if basic.present:
-    check_for_dupes(basic)
+    check_for_dupes_within(basic)
 if full.present:
-    check_for_dupes(full)
+    check_for_dupes_within(full)
 
 missing_deps_check(core)
 if basic.present:
