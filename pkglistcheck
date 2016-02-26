@@ -39,8 +39,13 @@ class PkgList:
                 pkglist.append(line.replace('\n', '').strip())
         return pkglist
 
+def print_title(title):
+    l = len(title)
+    print(title)
+    print('=' * l)
+
 def pkg_not_present_check(pkglist):
-    print('Checking lists for packages not in the repos (not necessarily a problem)...')
+    print_title('Checking lists for packages not in the repos (not necessarily a problem)...')
     for i in pkglist:
         if i is not '':
             if i not in repopkg:
@@ -54,7 +59,7 @@ def missing_deps_check(pkglist, prev = []):
     All packages in pkglist.pkglist should be either in pkglist.pkglist or in
     prev.
     '''
-    print('Checking', pkglist.name, 'for missing dependencies...')
+    print_title('Checking {} for missing dependencies...'.format(pkglist.name))
     allpkg = pkglist.pkglist + prev
     for i in pkglist.pkglist:
         if i in repopkg:
@@ -76,7 +81,7 @@ def missing_deps_check(pkglist, prev = []):
     print()
 
 def not_needed_check(pkglist):
-    print('Checking for packages that are not needed (not a problem in most cases)...')
+    print_title('Checking for packages that are not needed (not a problem in most cases)...')
     for i in pkglist:
         found = False
         for dep in deps:
@@ -90,7 +95,7 @@ def check_for_dupes_within(pkglist):
     '''
     Checks and prints duplicate entries within one PkgList
     '''
-    print('Checking for duplicates items in', pkglist.name)
+    print_title('Checking for duplicates items in {}'.format(pkglist.name))
     dupes = [item for item, count in collections.Counter(pkglist.pkglist).items() if count > 1]
     for i in dupes:
         print(i)
@@ -100,7 +105,8 @@ def check_for_dupes_between(list1, list2):
     '''
     Checks for duplicate entries between two PkgLists
     '''
-    print('Checking for duplicate items between', list1.name, 'and', list2.name)
+    print_title('Checking for duplicate items between {} and {}'
+            .format(list1.name, list2.name))
     common = []
     for i in list1.pkglist:
         if i in list2.pkglist and i not in common:
