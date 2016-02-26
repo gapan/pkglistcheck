@@ -107,14 +107,16 @@ def check_for_dupes_between(list1, list2):
     '''
     print_title('Checking for duplicate items between {} and {}'
             .format(list1.name, list2.name))
+    s1 = set(list1.pkglist)
+    s2 = set(list2.pkglist)
     common = []
-    for i in list1.pkglist:
-        if i in list2.pkglist and i not in common:
+    for i in s1:
+        if i in s2:
             common.append(i)
-    for i in list2.pkglist:
-        if i in list1.pkglist and i not in common:
+    for i in s2:
+        if i in s1:
             common.append(i)
-    for i in common:
+    for i in set(common):
         print(i)
     print()
 
