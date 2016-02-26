@@ -116,7 +116,7 @@ def check_for_dupes_between(list1, list2):
     for i in s2:
         if i in s1:
             common.append(i)
-    for i in set(common):
+    for i in sorted(set(common)):
         print(i)
     print()
 
