@@ -142,6 +142,7 @@ with open(package_data, 'r') as f:
                     priorities.append(priority)
                     deps.append(dep)
 
+# Setup package lists
 core = PkgList('CORE')
 if os.path.exists('BASIC'):
     basic = PkgList('BASIC')
@@ -152,25 +153,33 @@ if os.path.exists('FULL'):
 else:
     full = PkgList('FULL', present = False)
 
+# Check for duplicates within each list
 check_for_dupes_within(core)
 if basic.present:
     check_for_dupes_within(basic)
 if full.present:
     check_for_dupes_within(full)
 
+# Check for duplicates between lists
 if basic.present:
     check_for_dupes_between(core, basic)
     if full.present:
         check_for_dupes_between(core, full)
         check_for_dupes_between(basic, full)
 
+# Check for missing dependencies in each list, every time taking into account
+# all previous lists
 missing_deps_check(core)
 if basic.present:
     missing_deps_check(basic, prev = core.pkglist)
 if full.present:
     missing_deps_check(full, prev = core.pkglist + basic.pkglist)
 
+# List all packages that are not a dependency of anything else. Do that for all
+# lists combined together.
 isopkg = core.pkglist + basic.pkglist + full.pkglist
 not_needed_check(isopkg)
 
+# List all packages that are in the lists, but not in the repositories. Do that
+# for all lists combined together.
 pkg_not_present_check(isopkg)
