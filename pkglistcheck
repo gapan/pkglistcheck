@@ -185,11 +185,12 @@ if basic.present:
 if full.present:
     missing_deps_check(full, prev = core.pkglist + basic.pkglist)
 
-# List all packages that are not a dependency of anything else. Do that for all
-# lists combined together.
 isopkg = core.pkglist + basic.pkglist + full.pkglist
-not_needed_check(isopkg)
-
 # List all packages that are in the lists, but not in the repositories. Do that
 # for all lists combined together.
 pkg_not_present_check(isopkg)
+
+# List all packages that are not a dependency of anything else. Do that for all
+# lists combined together.
+not_needed_check(isopkg)
+
