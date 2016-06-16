@@ -153,6 +153,7 @@ with open(package_data, 'r') as f:
                     deps.append(dep)
 
 # Setup package lists
+aaa = PkgList('AAA')
 core = PkgList('CORE')
 if os.path.exists('BASIC'):
     basic = PkgList('BASIC')
@@ -164,6 +165,7 @@ else:
     full = PkgList('FULL', present = False)
 
 # Check for duplicates within each list
+check_for_dupes_within(aaa)
 check_for_dupes_within(core)
 if basic.present:
     check_for_dupes_within(basic)
@@ -171,21 +173,28 @@ if full.present:
     check_for_dupes_within(full)
 
 # Check for duplicates between lists
+check_for_dupes_between(aaa, core)
 if basic.present:
+    check_for_dupes_between(aaa, basic)
     check_for_dupes_between(core, basic)
     if full.present:
+        check_for_dupes_between(aaa, full)
         check_for_dupes_between(core, full)
         check_for_dupes_between(basic, full)
 
 # Check for missing dependencies in each list, every time taking into account
 # all previous lists
-missing_deps_check(core)
+#
+# aaa and core are always installed at the same time, so we looks for
+# dependencies within each other
+missing_deps_check(aaa, prev = core.pkglist)
+missing_deps_check(core, prev = aaa.pkglist)
 if basic.present:
-    missing_deps_check(basic, prev = core.pkglist)
+    missing_deps_check(basic, prev = aaa.pkglist + core.pkglist)
 if full.present:
-    missing_deps_check(full, prev = core.pkglist + basic.pkglist)
+    missing_deps_check(full, prev = aaa.pkglist + core.pkglist + basic.pkglist)
 
-isopkg = core.pkglist + basic.pkglist + full.pkglist
+isopkg = aaa.pkglist + core.pkglist + basic.pkglist + full.pkglist
 # List all packages that are in the lists, but not in the repositories. Do that
 # for all lists combined together.
 pkg_not_present_check(isopkg)
